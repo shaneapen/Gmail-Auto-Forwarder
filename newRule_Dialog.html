@@ -1,0 +1,174 @@
+<link rel="stylesheet" href="https://ssl.gstatic.com/docs/script/css/add-ons1.css">
+<style>
+table,tr,select,input{
+ width:100%;
+}
+td{width:50%;border:none;padding-right: 30px;}
+input[type="button"]{cursor:pointer;}
+</style>
+<b>1. When all these conditions are met</b>
+<br>
+<table>
+    <tbody>
+        <tr>
+            <td>
+                <!-- Select dropdown -->
+                <div class="block form-group">
+                    <label for="select">Label</label>
+                    <select id="labelList">
+    <option selected disabled hidden>Loading..</option>
+  </select>
+                </div>
+            </td>
+            <td>
+                <div class="block form-group">
+                    <label for="fromEmail">From</label>
+                    <input type="email" id="fromEmail" style="width: 100%;">
+                </div>
+            </td>
+        </tr>
+        <!--2nd row-->
+        <tr>
+            <td>
+                <div class="block form-group">
+                    <label for="subject">Subject</label>
+                    <input type="text" id="subject" style="width: 100%;">
+                </div>
+            </td>
+            <td>
+                <div class="block form-group">
+                    <label for="advancedCriteria">Advanced Criteria</label>
+                    <input type="text" id="advancedCriteria" placeholder="e.g., has:attachment to:me" style="width: 100%;">
+                </div>
+            </td>
+        </tr>
+
+    </tbody>
+</table>
+<!-- DivTable.com -->
+<br>
+<b>2. Do the following</b>
+
+<table>
+    <tbody>
+        <tr>
+            <td>
+                <div class="block form-group">
+                    <label for="forwardTo">To</label>
+                    <input type="email" id="forwardTo" style="width: 100%;" required>
+                </div>
+            </td>
+            <td>
+                <div class="block form-group">
+                    <label for="select">Sender's Alias</label>
+                    <select id="aliasEmail">
+    <option selected disabled hidden>Loading..</option>
+  </select>
+                </div>
+            </td>
+        </tr>
+    </tbody>
+</table>
+<div id="message123" style="height:18px"></div>
+
+<button class="action" onClick="submitData()">Create Forwarding Rule</button>
+<button onClick="manageRules()">Manage Rules</button>
+
+
+
+
+
+
+
+<!-- Javascript Code -->
+
+<script src="//ajax.googleapis.com/ajax/libs/jquery/1.10.1/jquery.min.js"></script>
+<script>
+    // The code in this function runs when the page is loaded.
+    $(function() {
+        google.script.run.withSuccessHandler(buildOptionList)
+            .getData();
+
+    });
+
+    function buildOptionList(data) {
+        var labelList = $('#labelList');
+        var aliasList = $('#aliasEmail');
+        labelList.empty();
+        aliasList.empty();
+        var labels = data.labels;
+        labelList.append(new Option("Select Gmail Label..", ""));
+        for (var i = 0; i < labels.length; i++) {
+            labelList.append(new Option(labels[i], labels[i]));
+        }
+
+        var emailAddresses = data.emailAddresses;
+        for (i = 0; i < emailAddresses.length; ++i) {
+            var emailID = emailAddresses[i];
+            aliasList.append(new Option(emailID, emailID));
+        }
+    }
+
+    function submitData() {
+        var formInput = {
+            'label': $("select#labelList option:checked").val(),
+            'from': $("#fromEmail").val(),
+            'subject': $("#subject").val(),
+            'advancedSearch': $("#advancedCriteria").val(),
+            'forwardTo': $("#forwardTo").val(),
+            'aliasEmail': $("#aliasEmail :selected").text()
+        }
+
+        var valid = true;
+
+        // Validation
+        if (formInput.label || formInput.from || formInput.subject || formInput.advancedSearch) {
+
+            if (formInput.from && !validateEmail(formInput.from)) {
+                $('#message123').html("<p style='color:red'>Invalid email address</p>");
+                valid = false;
+            }
+
+            if (!(formInput.forwardTo && validateEmail(formInput.forwardTo))) {
+                $('#message123').html("<p style='color:red'>Invalid email address</p>");
+                valid = false;
+            }
+            if (!formInput.forwardTo) {
+                $('#message123').html("<p style='color:red'>Can\x27t leave forward to field empty!</p>");
+                valid = false;
+            }
+
+            if (valid) {
+                google.script.run.addRule(formInput);
+                $("#message123").html("<p><img style='width:20px;height:20px;' src='https://www.wallies.com/filebin/images/loading_apple.gif'/> Creating new rule, please wait..</p>")
+                setTimeout(function(){
+                  $('#message123').html("<p style='color:green'>Rule created successfully!</p>");
+                }, 800);
+
+
+            }
+
+        } else {
+            $('#message123').html("<p style='color:red'>Atleast one condition is required</p>");
+            valid = false;
+        }
+
+
+    }
+
+
+
+    function validateEmail(sEmail) {
+        var filter = /^([\w-\.]+)@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.)|(([\w-]+\.)+))([a-zA-Z]{2,4}|[0-9]{1,3})(\]?)$/;
+        if (filter.test(sEmail)) {
+            return true;
+        } else {
+            return false;
+        }
+    }
+
+    function manageRules(){
+     google.script.run.manage_rules();
+    }
+
+</script>

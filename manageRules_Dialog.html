@@ -1,0 +1,65 @@
+<link rel="stylesheet" href="https://ssl.gstatic.com/docs/script/css/add-ons1.css">
+
+<style>
+select{
+ width:100%;
+}
+
+</style>
+
+<div class="block form-group">
+   <select id="rulesList">
+     <option selected disabled hidden>Loading..</option>
+   </select>
+   <p>Rules are processed every hour or you can run them manually here.</p>
+</div>
+<button class="action" onClick="run_rule()">Run Rule</button>
+<button onClick="deleteRule()">Delete Rule</button>
+<button onClick="deleteAll()">Delete All Rules</button>
+<br><br>
+<div id="message123" style="height:18px"></div>
+
+<script src="//ajax.googleapis.com/ajax/libs/jquery/1.10.1/jquery.min.js"></script>
+<script>
+// The code in this function runs when the page is loaded.
+   $(function() {
+       google.script.run.withSuccessHandler(buildOptionList)
+           .getRules();
+
+   });
+
+   function buildOptionList(data){
+    var rulesList = $("#rulesList");
+    if(data.length == 0 ){
+      $("#rulesList option:contains('Loading..')").text("No Rules found!")
+    }else{
+      $("#rulesList option:contains('Loading..')").text("Select a rule")
+      for(var i=0;i<data.length;++i){
+      rulesList.append(new Option(data[i].str,data[i].rule));
+      }
+    }
+   }
+
+   // Delete all function
+    function deleteAll(){
+     google.script.run.deleteAll();
+     //simply close the modal instead of deleting all option values as the user may opt to choose 'NO' in prompt
+     //OR CREATE A NEW METHOD TO UPDATE SELECT OPTION EVERY TIME A CHANGE IS DETCTED
+//      google.script.host.close();
+    }
+
+   //Delete selected rule
+    function deleteRule(){
+
+    //since the delete function rewrites rule number every time, we have to use the .index() method instead of .val()
+     var ruleToBeDeleted = $("#rulesList").find(':selected').index()
+     $("#rulesList option[value='"+ ruleToBeDeleted+"']").remove();
+     google.script.run.deleteRule(ruleToBeDeleted);
+     $("#message123").html("<p><img style='width:18px;height:18px;' src='https://www.wallies.com/filebin/images/loading_apple.gif'/> Deleting rule, please wait..</p>")
+     setTimeout(function(){
+         $('#message123').html("<p'>Rule deleted successfully.</p>");
+     }, 600);
+
+    }
+
+</script>
