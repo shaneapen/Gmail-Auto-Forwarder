@@ -1,3 +1,14 @@
+/*
+     ## Gmail Auto Forwarder ##
+
+     Version  :  2
+     Author   :  Shan Eapen Koshy
+     Date.    :  4th November 2017
+     Github   :  http://github.com/shaneapen/Gmail-Auto-Forwarder
+     Website  :  https://codegena.com
+
+*/
+
 function onInstall() {
     onOpen();
 }
@@ -7,19 +18,20 @@ function onOpen() {
     SpreadsheetApp.getUi()
         .createAddonMenu()
         .addItem('Create New Rule', 'create_new_rule')
-        .addItem('Manage Forwarding Rules', 'manage_rules')
+        .addItem('Manage Rules', 'manage_rules')
         .addSeparator()
         .addItem('View Remaining Quota', 'view_remaining_quota')
         .addItem('Quick Start Guide', 'showDialog')
+        .addSeparator()
+        .addItem('Reset', 'deleteAll')
 
-        .addToUi(); // Run the showSidebar function when someone clicks the menu
+        .addToUi();
 }
 
 function createTimeDrivenTriggers() {
-    // Trigger every 6 hours.
-    ScriptApp.newTrigger('gmailAutoForwarderStatus')
+    ScriptApp.newTrigger('runAllRules')
         .timeBased()
-        .everyHours(1)
+        .everyHours(3)
         .create();
 }
 
@@ -78,8 +90,6 @@ function addRule(formInput) {
     }
     //getting count again- IMP
     var count = parseInt(userProperties.getProperty('count'));
-    Logger.log(count)
-
     count += 1;
     userProperties.setProperty('count', count.toString());
 
@@ -151,8 +161,8 @@ function deleteRule(ruleNum) {
 }
 
 function startForwarding() {
-    var dateAsEpoch = Number(new Date().getTime() / 1000.0).toFixed(0)
-    PropertiesService.getScriptProperties().setProperty("dateAsEpoch", dateAsEpoch);
+    var dateAsEpoch = Number(new Date().getTime() / 1000.0).toFixed(0);
+    PropertiesService.getUserProperties().setProperty("dateAsEpoch", dateAsEpoch.toString());
     createTimeDrivenTriggers();
 }
 
@@ -180,9 +190,7 @@ function runAllRules() {
                 for (j = 0; j < message.length; ++j) {
                     var messageDate = Number(message[j].getDate().getTime() / 1000.0).toFixed(0);
                     if (messageDate > lastCheckedDate) {
-                        message[j].forward(rule.forwardTo, {
-                            from: rule.aliasEmail
-                        });
+                        message[j].forward(rule.forwardTo);
                     } else {
                         break; //break out of loop if current thread doesn't contain anymore new message
                     }
@@ -209,9 +217,7 @@ function runRule(ruleNum) {
             for (j = 0; j < message.length; ++j) {
                 var messageDate = Number(message[j].getDate().getTime() / 1000.0).toFixed(0);
                 if (messageDate > lastCheckedDate) {
-                    message[j].forward(rule.forwardTo, {
-                        from: rule.aliasEmail
-                    });
+                    message[j].forward(rule.forwardTo);
                 } else {
                     break; //break out of loop if current thread doesn't contain anymore new message
                 }
@@ -221,7 +227,15 @@ function runRule(ruleNum) {
 }
 
 
-/*  Assistant functions */
+/*
+        ## Assistant functions ##
+
+        1. search_filter_string(ruleNumber) - > String
+            Returns a string of search parameters (label + from + subject + advancedQueries)
+
+
+
+*/
 
 function search_filter_string(i) {
     var rule = JSON.parse(PropertiesService.getUserProperties().getProperty('rule_' + i));
@@ -240,18 +254,13 @@ function remainingQuota() {
     return MailApp.getRemainingDailyQuota();
 }
 
-function createTimeDrivenTriggers() {
-    // Trigger every 6 hours.
-    ScriptApp.newTrigger('runAllRules')
-        .timeBased()
-        .everyHours(6)
-        .create();
-}
+
 
 
 function debug() {
-    //  PropertiesService.getUserProperties().deleteAllProperties();
+//    Logger.log("DATE: " +PropertiesService.getUserProperties().getProperty('dateAsEpoch'));
     Logger.log(PropertiesService.getUserProperties().getProperties())
-    Logger.log("Remaining quota: " + MailApp.getRemainingDailyQuota());
-
+//    Logger.log("Remaining quota: " + MailApp.getRemainingDailyQuota());
+//      var threads = GmailApp.search('after: 1509889580' + ' ' + search_filter_string(1));
+//      Logger.log(threads[0].getMessages()[0].getSubject());
 }
