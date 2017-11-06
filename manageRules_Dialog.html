@@ -51,19 +51,28 @@
     function deleteRule() {
 
         //since the delete function rewrites rule number every time, we have to use the .index() method instead of .val()
-        var ruleToBeDeleted = $("#rulesList").find(':selected').index()
-        $("#rulesList option[value='" + ruleToBeDeleted + "']").remove();
-        google.script.run.deleteRule(ruleToBeDeleted);
-        $("#message123").html("<p><img style='width:18px;height:18px;' src='https://www.wallies.com/filebin/images/loading_apple.gif'/> Deleting rule, please wait..</p>")
-        setTimeout(function() {
-            $('#message123').html("<p'>Rule deleted successfully.</p>");
-        }, 600);
+        var indexOfSelectedRule = $("#rulesList").find(':selected').index();
+        if(indexOfSelectedRule == 0){
+         $('#message123').html("<p style='color:red'>No rule selected!</p>");
+        }else{
+         $("#rulesList option[value='" + indexOfSelectedRule + "']").remove();
+         google.script.run.deleteRule(indexOfSelectedRule);
+         $("#message123").html("<p><img style='width:18px;height:18px;' src='https://www.wallies.com/filebin/images/loading_apple.gif'/> Deleting rule, please wait..</p>")
+          setTimeout(function() {
+            $('#message123').html("<p style='color:green'>Rule deleted successfully.</p>");
+          }, 600);
+        }
 
     }
 
     function run_rule() {
-        google.script.run.withSuccessHandler(remainingQuotaMessage).remainingQuota();
-        google.script.run.runRule($("#rulesList").find(':selected').index());
+        var indexOfSelectedRule = $("#rulesList").find(':selected').index();
+        if(indexOfSelectedRule == 0){
+          $('#message123').html("<p style='color:red'>No rule selected!</p>");
+        }else{
+          google.script.run.withSuccessHandler(remainingQuotaMessage).remainingQuota();
+          google.script.run.runRule($("#rulesList").find(':selected').index());
+        }
     }
 
     function remainingQuotaMessage(value) {
