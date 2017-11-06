@@ -1,0 +1,20 @@
+<div id='message123'></div>
+<p><a href='https://codegena.com'>Get help</a></p>
+
+<script src="//ajax.googleapis.com/ajax/libs/jquery/1.10.1/jquery.min.js"></script>
+
+<script>
+$(function() {
+    google.script.run.withSuccessHandler(remainingQuotaMessage).remainingQuota();
+    });
+
+   function remainingQuotaMessage(value){
+     switch(value){
+      case 1: $("#message123").html("You can forward 1 more message today.")
+      case 0: $("#message123").html("Oops! You have used up your daily limit.<br>If you think your quota is used up fast make sure that unnecessary rules are deleted.")
+      default: $("#message123").html("You can forward "+value+ " more messages today.");
+     }
+
+   }
+
+</script>
