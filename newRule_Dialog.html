@@ -23,7 +23,7 @@ input[type="button"]{cursor:pointer;}
             <td>
                 <div class="block form-group">
                     <label for="fromEmail">From</label>
-                    <input type="email" id="fromEmail" style="width: 100%;">
+                    <input type="text" id="fromEmail" style="width: 100%;">
                 </div>
             </td>
         </tr>
@@ -122,12 +122,8 @@ input[type="button"]{cursor:pointer;}
         var valid = true;
 
         // Validation
+        //if any of the 4 fields is not null, the if-block is executed
         if (formInput.label || formInput.from || formInput.subject || formInput.advancedSearch) {
-
-            if (formInput.from && !validateEmail(formInput.from)) {
-                $('#message123').html("<p style='color:red'>Invalid email address</p>");
-                valid = false;
-            }
 
             if (!(formInput.forwardTo && validateEmail(formInput.forwardTo))) {
                 $('#message123').html("<p style='color:red'>Invalid email address</p>");
@@ -144,7 +140,6 @@ input[type="button"]{cursor:pointer;}
                 setTimeout(function(){
                   $('#message123').html("<p style='color:green'>Rule created successfully!</p>");
                 }, 800);
-
 
             }
 
