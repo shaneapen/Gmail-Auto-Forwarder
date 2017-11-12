@@ -153,7 +153,8 @@ function deleteRule(ruleNum) {
 
     if (count == 1) {
         userProperties.setProperty('count', '0');
-        stopForwarding();
+        userProperties.deleteProperty('dateAsEpoch');
+        deleteTriggers();
     } else {
         userProperties.setProperty('count', (count - 1).toString());
     }
@@ -166,7 +167,7 @@ function startForwarding() {
     createTimeDrivenTriggers();
 }
 
-function stopForwarding() {
+function deleteTriggers() {
     var triggers = ScriptApp.getProjectTriggers();
     for (var i = 0; i < triggers.length; i++) {
         if (triggers[i].getHandlerFunction() == "runAllRules") {
@@ -189,9 +190,11 @@ function runAllRules() {
                 var message = GmailApp.getMessagesForThread(threads[i]);
                 for (j = 0; j < message.length; ++j) {
                     var messageDate = Number(message[j].getDate().getTime() / 1000.0).toFixed(0);
-                    if (messageDate > lastCheckedDate) {
+                    if (messageDate > lastCheckedDate && rule.aliasEmail) {
+                      message[j].forward(rule.forwardTo,{'from':rule.aliasEmail});
+                    } else if(messageDate > lastCheckedDate){
                         message[j].forward(rule.forwardTo);
-                    } else {
+                    }else {
                         break; //break out of loop if current thread doesn't contain anymore new message
                     }
                 }
