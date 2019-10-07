@@ -1,5 +1,5 @@
 /*
-     ## Gmail Auto Forwarder ##
+     ### Gmail Auto Forwarder ###
 
      Version  :  2
      Author   :  Shan Eapen Koshy
