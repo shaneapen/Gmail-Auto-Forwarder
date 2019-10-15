@@ -1,4 +1,4 @@
-/*
+/* blah blah blah
      ## Gmail Auto Forwarder ##
 
      Version  :  2
